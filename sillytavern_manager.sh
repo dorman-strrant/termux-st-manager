@@ -25,7 +25,7 @@ MENU_ERROR_COUNT=0
 # --- 辅助函数 ---
 print_info() { echo -e "${C_CYAN}INFO:${C_NC} $1"; }
 print_warn() { echo -e "${C_YELLOW}WARN:${C_NC} $1"; }
-print_error() { echo -e "${C_RED}ERROR:${C_NC} $1"; } # 通用错误
+print_error() { echo -e "${C_RED}ERROR:${C_NC} $1"; }
 
 # --- 废物猫猫的吐槽函数 ---
 cat_tsundere_menu_error() {
@@ -54,13 +54,12 @@ check_command_installed() {
     if ! command -v "$1" &> /dev/null; then
         print_error "$1 命令未找到。"
         if [ "$2" == "critical" ]; then
-            cat_tsundere_deploy_error # 特定部署错误
+            cat_tsundere_deploy_error
             print_error "这是一个关键依赖，脚本无法继续。请尝试手动安装: 'pkg install $1'"
             exit 1
         fi
         return 1
     fi
-    # print_info "$1 命令已找到。" # 成功时不必太啰嗦
     return 0
 }
 
@@ -80,7 +79,6 @@ install_dependencies() {
     pkg update -y && pkg upgrade -y
     pkg install -y git nodejs-lts python curl
     if [ $? -ne 0 ]; then
-        # cat_tsundere_deploy_error # 由调用者处理顶级错误信息
         print_error "核心依赖安装失败。"
         return 1
     fi
@@ -106,7 +104,6 @@ clone_sillytavern() {
     print_info "废物猫猫：开始克隆 SillyTavern 到 $ST_DIR 了，不许偷看本猫猫工作！"
     git clone --depth=1 "$ST_REPO" "$ST_DIR"
     if [ $? -ne 0 ]; then
-        # cat_tsundere_deploy_error
         print_error "克隆 SillyTavern 失败。"
         return 1
     fi
@@ -127,7 +124,6 @@ install_sillytavern_modules() {
       npm install
     fi
     if [ $? -ne 0 ]; then
-        # cat_tsundere_deploy_error
         print_error "npm install/ci 失败。"
         cd "$HOME"
         return 1
@@ -138,7 +134,7 @@ install_sillytavern_modules() {
 }
 
 start_sillytavern() {
-    MENU_ERROR_COUNT=0 # 重置错误计数
+    MENU_ERROR_COUNT=0
     if ! check_command_installed "node"; then return; fi
     if [ ! -f "$ST_DIR/server.js" ]; then
         print_error "废物猫猫：杂鱼！SillyTavern 还没装好呢！是不是想让本猫猫白忙活？去重装 (选项 2)！"
@@ -188,12 +184,12 @@ reinstall_sillytavern() {
                 if clone_sillytavern && install_sillytavern_modules; then
                     print_info "SillyTavern 重新安装完成。废物猫猫：哼，总算搞定了！"
                 else
-                    cat_tsundere_deploy_error # 在这里调用，因为是顶级安装流程失败
+                    cat_tsundere_deploy_error
                     print_error "SillyTavern 重新安装过程中发生错误。"
                 fi
-            fi # critical check_command 内部会 exit
+            fi
         else
-            cat_tsundere_deploy_error # 依赖安装失败
+            cat_tsundere_deploy_error
         fi
     else
         print_info "废物猫猫：哼，就知道杂鱼会反悔！重新安装已取消！"
@@ -243,14 +239,34 @@ show_menu() {
             echo "版权: spacesouks (废物猫猫认证) | 版本: 0.1.2 | 更新: 2025.06.23"
             exit 0
             ;;
-        *) cat_tsundere_menu_error ;; # 错误输入
+        *) cat_tsundere_menu_error ;;
     esac
 
-    # 如果不是退出选项或无效选项，则操作完成后暂停并重新显示菜单
-    if [[ "$choice" != "3" && "$choice" != "9" && "$choice" != "*" ]]; then
-        read -p "废物猫猫：按 Enter 返回主菜单，杂鱼别磨蹭！"
-    elif [[ "$choice" == "*" ]]; then # 特指无效选项后
-        read -p "废物猫猫：按 Enter 让本猫猫再给你一次机会，哼！"
+    local should_pause=true
+    if [[ "$choice" == "3" || "$choice" == "9" ]]; then # 退出选项
+        should_pause=false
+    fi
+    # 对于无效选项 (case的*匹配到的), cat_tsundere_menu_error 已经打印了信息
+    # 我们也需要暂停一下让用户看到错误信息
+    # 所以只有真正执行了操作的有效选项才不需要特别处理暂停，因为它们内部可能有read
+
+    # 修正：当 * (无效选项) 时，也应该暂停一下让用户看到错误，然后再重新显示菜单
+    # 只有3和9是直接退出的。其他所有情况（包括有效操作和无效操作*）都应在show_menu前有机会暂停。
+    # 有效操作（0,1,2,4,5,6,8）如果内部没有 read -p，则也需要暂停。
+    # 重新思考暂停逻辑：
+    # 选项 3 和 9 直接 exit，不会到这里。
+    # 如果是无效选项 (choice 未匹配任何 case 分支，而是走了 *), cat_tsundere_menu_error 会被调用。
+    #   此时，我们需要暂停一下让用户看到错误，然后再 show_menu()。
+    # 如果是有效选项 (0,1,2,4,5,6,8), 它们执行完后，也需要暂停一下，然后再 show_menu()。
+    # 所以，只要不是退出选项，都应该暂停。
+    
+    # 简化暂停逻辑：只要没退出，就暂停
+    if [[ "$choice" != "3" && "$choice" != "9" ]]; then
+        if [[ "$choice" =~ ^[0124568]$ ]] || [ -z "$choice" ]; then # 有效操作或回车默认
+             read -p "废物猫猫：按 Enter 返回主菜单，杂鱼别磨蹭！"
+        else # 无效操作，即 case * 匹配的情况
+             read -p "废物猫猫：按 Enter 让本猫猫再给你一次机会，哼！"
+        fi
     fi
     show_menu
 }
@@ -266,16 +282,4 @@ initial_setup() {
 
     if ! check_command_installed "git" "critical"; then exit 1; fi
     if ! check_command_installed "node" "critical"; then exit 1; fi
-    if ! check_command_installed "npm" "critical"; then exit 1; fi
-
-    print_info "废物猫猫：正在把本猫猫的脚本安装到 $SCRIPT_SELF_PATH... 杂鱼要好好珍惜！"
-    mkdir -p "$(dirname "$SCRIPT_SELF_PATH")"
-    cat "${BASH_SOURCE[0]}" > "$SCRIPT_SELF_PATH"
-    if [ $? -ne 0 ]; then print_error "废物猫猫：喵？！无法复制脚本！杂鱼你是不是没给权限？！"; exit 1; fi
-    chmod +x "$SCRIPT_SELF_PATH"
-    print_info "脚本已安装到 $SCRIPT_SELF_PATH 并设为可执行。废物猫猫：哼，完美～"
-
-    RC_FILE="$HOME/.bashrc"
-    RC_FILE_EXISTS=false
-    if [ -f "$RC_FILE" ]; then RC_FILE_EXISTS=true; fi
-    ALREADY_ADDED_
+    if ! check_command_installed "npm" "critical"; then exit 1; 
