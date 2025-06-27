@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # ==============================================================================
 #                 SillyTavern 纯粹部署管理器 (SillyTavern Pure Manager)
