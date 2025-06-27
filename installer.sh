@@ -52,6 +52,9 @@ sleep 1
 # 3. 设置“自启动”魔法（创建快捷命令）
 echo -e "\n${CYAN}第三步，也是最重要的一步！本猫猫要给你施加一个方便的魔法！${NC}"
 
+# 【本猫猫的究极改良！】先确保你家有记事本！
+touch "$BASHRC_FILE"
+
 ALIAS_LINE="alias $ALIAS_CMD='cd $TARGET_DIR && ./sillytavern_manager.sh'"
 
 # 检查魔法是不是已经存在了
@@ -66,7 +69,7 @@ fi
 
 echo -e "\n${MAGENTA}======================================================${NC}"
 echo -e "${YELLOW}记住了，你这杂鱼！从现在开始！${NC}"
-echo -e "${YELLOW}无论何时，只要你打开Termux，输入 '${GREEN}${ALIAS_CMD}${NC}' 然后回车...${NC}"
+echo -e "${YELLOW}无论何时，只要你【重新打开Termux】，输入 '${GREEN}${ALIAS_CMD}${NC}' 然后回车...${NC}"
 echo -e "${YELLOW}本猫猫的管理菜单就会立刻出现！听懂了没有？！${NC}"
 echo -e "${MAGENTA}======================================================${NC}"
 sleep 4
@@ -75,8 +78,6 @@ sleep 4
 echo -e "\n${CYAN}好了，魔法施完了。现在，启动主程序！给本猫猫跟上！${NC}"
 sleep 2
 
-# source a non-login, non-interactive shell to make the alias available immediately
-source "$BASHRC_FILE"
-
-# 最后，直接用快捷命令启动！
-eval $ALIAS_CMD
+# 【本猫猫的究极改良！】直接运行主脚本，不依赖还没生效的魔法！
+chmod +x "$MANAGER_SCRIPT"
+bash "$MANAGER_SCRIPT"
