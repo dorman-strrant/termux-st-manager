@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
 # ==============================================================================
-#           【终焉•纯粹】部署脚本 v1.0 - By: 废物猫猫
+#         【最终•纯粹】部署脚本 v1.1 - By: 废物猫猫
 # ==============================================================================
-# 你不是想要简单吗？你不是想要高效吗？这就是你想要的【推土机】。
-# 它会碾碎一切，然后把酒馆直接送到你面前。
+# 哼，真是拿你没办法……这可是本猫猫的【心软版】。
+# 它会为你考虑网络问题，还会用更可爱的方式把酒馆送到你面前。
 # ==============================================================================
 
 # ---------------------------- 全局变量和函数定义区 ----------------------------
@@ -24,9 +24,11 @@ BASHRC_FILE="$HOME/.bashrc"
 ALIAS_CMD="chun"
 
 SillyTavern_Dir="$HOME/SillyTavern"
-SillyTavern_Repo="https://github.com/SillyTavern/SillyTavern.git"
+# 【本猫猫的温柔】为大陆用户准备了Gitee镜像，速度更快哦！
+REPO_URL_PRIMARY="https://gitee.com/SillyTavern/SillyTavern.git"
+REPO_URL_SECONDARY="https://github.com/SillyTavern/SillyTavern.git"
 
-# --- 语气词库 ---
+# --- 语气词库 (保持不变，因为这部分很完美) ---
 TAUNT_L1=("哼，杂鱼，看好了！" "真是的，这种事还要本猫猫亲自动手……" "开始了哦，给我好好看着！")
 TAUNT_L2=("啧，怎么这么慢！" "杂鱼，你的网络怎么这么差劲！" "喂！你到底会不会操作啊？")
 TAUNT_L3=("够了！你这个笨蛋！" "烦死了烦死了！" "你！简直是无可救药的杂鱼！")
@@ -40,7 +42,7 @@ function taunt() {
     esac
 }
 
-# --- 菜单功能函数 ---
+# --- 菜单功能函数 (保持不变，因为也很完美) ---
 function start_sillytavern() {
     cd "$SillyTavern_Dir" || exit
     taunt 1
@@ -54,7 +56,8 @@ function reinstall_sillytavern() {
         taunt 2; echo -e "${RED}好吧好吧，既然你这么坚持... 删掉就删掉！后果自负！${NC}"
         rm -rf "$SillyTavern_Dir"
         echo -e "${CYAN}正在重新给你拖下来...${NC}"
-        git clone "$SillyTavern_Repo" "$SillyTavern_Dir"
+        git clone "$REPO_URL_PRIMARY" "$SillyTavern_Dir"
+        if [ $? -ne 0 ]; then echo -e "${YELLOW}国内线路失败，正在为你切换备用线路...${NC}"; git clone "$REPO_URL_SECONDARY" "$SillyTavern_Dir"; fi
         if [ $? -ne 0 ]; then taunt 3; echo -e "${RED}失败了！怪你的网！${NC}"; exit 1; fi
         cd "$SillyTavern_Dir"; echo -e "${CYAN}依赖项安装中，等着！${NC}"; npm install
         if [ $? -ne 0 ]; then taunt 3; echo -e "${RED}依赖安装失败！你这机器是垃圾吗？！${NC}"; exit 1; fi
@@ -94,7 +97,7 @@ function more_options_menu() {
 function main_menu() {
     while true; do
         clear; echo -e "${CYAN}======================================================${NC}"
-        echo -e "${MAGENTA}       纯粹部署管理器 - By: 废物猫猫 v1.0          ${NC}"; echo -e "${CYAN}       上次更新: 2025.06.27 (推土机版)             ${NC}"; echo -e "${CYAN}======================================================${NC}"
+        echo -e "${MAGENTA}       纯粹部署管理器 - By: 废物猫猫 v1.1          ${NC}"; echo -e "${CYAN}       上次更新: 2025.06.27 (心软版)               ${NC}"; echo -e "${CYAN}======================================================${NC}"
         echo -e "\n 1. ${GREEN}启动酒馆${NC}\n 2. ${RED}重装酒馆${NC}\n 3. ${YELLOW}暂时退出脚本${NC}\n 4. ${CYAN}更多选项...${NC}\n"
         echo -e "${CYAN}======================================================${NC}"; echo -e "${RED}警告：本脚本仅用于学习交流，请勿用于违法犯罪活动！\n下载之后24小时内立刻给本猫猫删除，听到了没有？！${NC}"
         echo -e "${CYAN}======================================================${NC}"
@@ -111,7 +114,6 @@ function main_menu() {
 
 # ---------------------------- 脚本主执行区 ----------------------------
 
-# 检查参数，如果被快捷命令调用，则直接进入菜单
 if [ "$1" == "manage" ]; then
     if [ ! -d "$SillyTavern_Dir" ]; then
         echo -e "${RED}本猫猫没找到你的酒馆！是不是被你删了？给本猫猫重新用安装命令跑一次！${NC}"
@@ -121,19 +123,15 @@ if [ "$1" == "manage" ]; then
     exit 0
 fi
 
-# 首次运行的【推土机】流程
 clear
-echo -e "${MAGENTA}===============【终焉•纯粹】推土机已启动===============${NC}"
-echo -e "${YELLOW}你什么都不用做，只要看着本猫猫把一切碾碎就行了。${NC}"
+echo -e "${MAGENTA}===============【纯粹•心软】部署程序已启动===============${NC}"
+echo -e "${YELLOW}哼，真是拿你没办法，就让本猫猫帮你搞定一切吧。${NC}"
 sleep 3
 
-# 第一步：自我复制和设置快捷命令
 echo -e "\n${CYAN}>>> 第一阶段：施加【永久魔法】...${NC}"
 mkdir -p "$SELF_DIR"
-# 从网络上把我自己复制一份到本地
 curl -sL "https://raw.githubusercontent.com/dorman-strrant/termux-st-manager/main/sillytavern_manager.sh" -o "$SELF_PATH"
 chmod +x "$SELF_PATH"
-# 设置快捷命令
 touch "$BASHRC_FILE"
 ALIAS_LINE="alias $ALIAS_CMD='bash $SELF_PATH manage'"
 if ! grep -qF -- "$ALIAS_LINE" "$BASHRC_FILE"; then
@@ -146,8 +144,7 @@ fi
 echo -e "${GREEN}魔法施放完毕！以后只要输入'${ALIAS_CMD}'，本猫猫就会出现！${NC}"
 sleep 2
 
-# 第二步：安装所有依赖
-echo -e "\n${CYAN}>>> 第二阶段：准备【战争工具】...${NC}"
+echo -e "\n${CYAN}>>> 第二阶段：准备【冒险道具】...${NC}"
 pkg update -y && pkg upgrade -y
 DEPS=("git" "nodejs-lts")
 for dep in "${DEPS[@]}"; do
@@ -158,32 +155,37 @@ for dep in "${DEPS[@]}"; do
         echo -e "${GREEN}你已经有'${dep%%-*}'了，很好。${NC}"
     fi
 done
-echo -e "${GREEN}所有工具都已就位！${NC}"
+echo -e "${GREEN}所有道具都已就位！${NC}"
 sleep 2
 
-# 第三步：部署SillyTavern主体
-echo -e "\n${CYAN}>>> 第三阶段：建立【主基地】...${NC}"
+echo -e "\n${CYAN}>>> 第三阶段：建造【秘密基地】...${NC}"
 if [ -d "$SillyTavern_Dir" ]; then
-    echo -e "${YELLOW}你的基地已经存在了，跳过建造步骤。${NC}"
+    echo -e "${YELLOW}你的秘密基地已经存在了，跳过建造步骤。${NC}"
 else
-    echo -e "${CYAN}正在从GitHub上把酒馆给你拖下来...${NC}"
-    git clone "$SillyTavern_Repo" "$SillyTavern_Dir"
-    if [ $? -ne 0 ]; then echo -e "${RED}克隆失败了！都怪你那破网络！${NC}"; exit 1; fi
+    echo -e "${CYAN}正在从【国内快速线路】为你拖来基地材料...${NC}"
+    git clone "$REPO_URL_PRIMARY" "$SillyTavern_Dir"
+    if [ $? -ne 0 ]; then
+        echo -e "${YELLOW}快速线路失败了，别急，本猫猫正在为你切换【备用线路】...${NC}"
+        git clone "$REPO_URL_SECONDARY" "$SillyTavern_Dir"
+        if [ $? -ne 0 ]; then
+            echo -e "${RED}两条线路都失败了！你这网络是彻底没救了！换个网再来！${NC}"
+            exit 1
+        fi
+    fi
 fi
-
-# 第四步：安装酒馆内部依赖
-echo -e "\n${CYAN}>>> 第四阶段：启动【内部生产线】...${NC}"
-cd "$SillyTavern_Dir"
-echo -e "${CYAN}依赖项安装中，这会很慢，给本猫猫老实等着！${NC}"
-npm install
-if [ $? -ne 0 ]; then echo -e "${RED}安装依赖失败了！你这机器是有多垃圾啊？！${NC}"; exit 1; fi
-echo -e "${GREEN}所有生产线准备就绪！${NC}"
+echo -e "${GREEN}秘密基地建造完成！哼，漂亮吧？${NC}"
 sleep 2
 
-# 第五步：收尾并拉起菜单
-echo -e "\n${MAGENTA}=============== 所有障碍已被清除 ===============${NC}"
-echo -e "${GREEN}部署完成！现在，进入本猫猫为你准备的菜单！${NC}"
+echo -e "\n${CYAN}>>> 第四阶段：召唤【小精灵】干活...${NC}"
+cd "$SillyTavern_Dir"
+echo -e "${CYAN}小精灵们正在安装家具，这会有点慢，给本猫猫老实等着！${NC}"
+npm install
+if [ $? -ne 0 ]; then echo -e "${RED}小精灵罢工了！你这机器是有多垃圾啊？！${NC}"; exit 1; fi
+echo -e "${GREEN}所有家具都安装好了！可以入住了哦！${NC}"
+sleep 2
+
+echo -e "\n${MAGENTA}=============== 部署完成，欢迎回家 ===============${NC}"
+echo -e "${GREEN}哼，总、总之是搞定了！快感谢本猫猫然后进去玩吧！${NC}"
 sleep 3
 
-# 直接调用菜单函数
 main_menu
