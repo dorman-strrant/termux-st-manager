@@ -94,7 +94,7 @@ function update_self() {
 function more_options_menu() {
     while true; do
         clear; echo -e "${MAGENTA}                 废物猫猫的更多选项                 ${NC}"
-        echo -e " 1. ${GREEN}更新酒馆本体${NC}\n 2. ${GREEN}加入官方群聊${NC}\n 3. ${GREEN}进入官方API服务站${NC}\n 4. ${GREEN}加入官方云酒馆${NC}\n 5. ${GREEN}共享酒馆资源${NC}\n 6. ${YELLOW}特别事项...${NC}\n\n 0. ${RED}返回主菜单${NC}"
+        echo -e " 1. ${GREEN}更新酒馆本体${NC}\n 2. ${GREEN}加入官方群聊${NC}\n 3. ${GREEN}进入官方API服务站${NC}\n 4. ${GREEN}加入官方云酒馆${NC}\n 5. ${GREEN}共享酒馆资源${NC}\n 6. ${YELLOW}缺乏可长期稳定使用或是低价的ai？...${NC}\n\n 0. ${RED}返回主菜单${NC}"
         read -r -p "$(echo -e ${YELLOW}"杂鱼，快选一个： "${NC})" choice
         case $choice in
             1) update_sillytavern ;;
